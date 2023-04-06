@@ -1,6 +1,7 @@
 ﻿using LibApi.Context;
 using LibApi.Interfaces;
 using LibApi.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace LibApi.Repositories
 {
@@ -13,54 +14,54 @@ namespace LibApi.Repositories
             _context = context;
         }
 
-        public bool AuthorExists(int id)
+        public async Task <bool> AuthorExists(int id)
         {
-            return _context.Authors.Any(a => a.Id == id);
+            return  await  _context.Authors.AnyAsync(a => a.Id == id);
         }
 
-        public bool CreateAuthor(Author author)
+        public async Task<bool> CreateAuthor(Author author)
         {
             _context.Add(author);
-             return Save();
+             return await Save();
         }
 
-        public bool DeleteAuthor(Author author)
+        public async Task<bool> DeleteAuthor(Author author)
         {
             _context.Remove(author);
-            return Save();
+            return await Save();
         }
 
-        public Author GetAuthorById(int id)
+        public async Task<Author> GetAuthorById(int id)
         {
-            return _context.Authors.Where(a => a.Id == id).FirstOrDefault();
+            return await _context.Authors.Where(a => a.Id == id).FirstOrDefaultAsync();
         }
 
-        public Author GetAuthorByLastName(string name)
+        public async Task<Author> GetAuthorByLastName(string name)
         {
-            return _context.Authors.Where(a => a.LastName == name).FirstOrDefault();
+            return await _context.Authors.Where(a => a.LastName == name).FirstOrDefaultAsync();
         }
 
-        public ICollection<Author> GetAuthors()
+        public async Task <ICollection<Author>> GetAuthors()
         {
-            return _context.Authors.OrderBy(a => a.Id).ToList();
+            return await _context.Authors.OrderBy(a => a.Id).ToListAsync();
         }
 
-        public ICollection<Book> GetBooksByAuthorId(int id)
+        public async Task<ICollection<Book>> GetBooksByAuthorId(int id)
         {
             var author = GetAuthorById(id);
-            return _context.Books.Where(a => a.AuthorId == author.Id).ToList();
+            return await _context.Books.Where(a => a.AuthorId == author.Id).ToListAsync();
         }
 
-        public bool Save()
+        public async Task <bool> Save()
         {
-            var saved = _context.SaveChanges();
+            var saved = await _context.SaveChangesAsync();
             return saved > 0 ? true : false;
         }
 
-        public bool UpdateAuthor(Author author)
+        public async Task <bool> UpdateAuthor(Author author)
         {
             _context.Update(author);
-            return Save();
+            return await Save();
         }
     }
 }

@@ -4,13 +4,12 @@ namespace LibApi.Interfaces
 {
     public interface IBookRepository
     {
-        ICollection<Book> GetBooks();
-        Book GetBook(int id);
-        Book GetBook(string title);
-        bool BookExists(int id);
-        bool CreateBook(Book book);
-        bool UpdateBook(Book book);
-        bool DeleteBook(Book book);
-        bool Save();
+       Task<ICollection<Book>> GetBooks();
+       Task<Book> GetBook(int id);
+       Task <bool> BookExists(int id);
+       Task <bool> CreateBook(Book book);
+       Task <bool> UpdateBook(Book book);
+       Task <bool> DeleteBook(Book book);
+       Task <bool> Save();
     }
 }

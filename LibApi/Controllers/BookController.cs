@@ -21,9 +21,9 @@ namespace LibApi.Controllers
         }
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(IEnumerable<Book>))]
-        public IActionResult GetBooks()
+        public async Task <IActionResult> GetBooks()
         {
-            var books = _mapper.Map<List<BookDto>>(_bookRepository.GetBooks());
+            var books = _mapper.Map<List<BookDto>>( await _bookRepository.GetBooks());
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -33,11 +33,11 @@ namespace LibApi.Controllers
         [HttpGet("{bookId}")]
         [ProducesResponseType(200, Type = typeof(Book))]
         [ProducesResponseType(400)]
-        public IActionResult GetBook(int bookId)
+        public async Task<IActionResult> GetBook(int bookId)
         {
-            if (!_bookRepository.BookExists(bookId))
+            if ( ! await _bookRepository.BookExists(bookId))
                 return NotFound();
-            var book = _mapper.Map<BookDto>(_bookRepository.GetBook(bookId));
+            var book = _mapper.Map<BookDto>( await _bookRepository.GetBook(bookId));
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             return Ok(book);
@@ -45,14 +45,14 @@ namespace LibApi.Controllers
         [HttpPost]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public IActionResult CreateBook([FromBody] BookDto bookCreate)
+        public async Task<IActionResult> CreateBook([FromBody] BookDto bookCreate)
         {
-            if (CreateBook == null)
+            if ( bookCreate == null)
             {
                 return BadRequest(ModelState);
             }
-            var book = _bookRepository.GetBooks()
-                .Where(a => a.Title.Trim().ToUpper() == bookCreate.Title.ToUpper())
+            var books = await _bookRepository.GetBooks();
+            var book= books.Where(a => a.Title.Trim().ToUpper() == bookCreate.Title.Trim().ToUpper())
                 .FirstOrDefault();
             if (book != null)
             {
@@ -62,7 +62,7 @@ namespace LibApi.Controllers
             if (!ModelState.IsValid)
                 BadRequest(ModelState);
             var bookMap = _mapper.Map<Book>(bookCreate);
-            if (!_bookRepository.CreateBook(bookMap))
+            if (! await _bookRepository.CreateBook(bookMap))
             {
                 ModelState.AddModelError("", "Something went wrong while saving");
                 return StatusCode(500, ModelState);
@@ -73,18 +73,18 @@ namespace LibApi.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
-        public IActionResult DeleteBook(int bookId)
+        public async Task <IActionResult> DeleteBook(int bookId)
         {
-            if (!_bookRepository.BookExists(bookId))
+            if (! await _bookRepository.BookExists(bookId))
             {
                 return NotFound();
             }
-            var bookToDelete = _bookRepository.GetBook(bookId);
+            var bookToDelete = await _bookRepository.GetBook(bookId);
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            if (!_bookRepository.DeleteBook(bookToDelete))
+            if (! await  _bookRepository.DeleteBook(bookToDelete))
             {
                 ModelState.AddModelError("", "Something went wrong while deleting the book");
             }
@@ -94,7 +94,7 @@ namespace LibApi.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
-        public IActionResult UpdateBook(int bookId, [FromBody] BookDto updatedBook)
+        public async Task <IActionResult> UpdateBook(int bookId, [FromBody] BookDto updatedBook)
         {
             if (updatedBook == null)
             {
@@ -104,7 +104,7 @@ namespace LibApi.Controllers
             {
                 return BadRequest(ModelState);
             }
-            if (!_bookRepository.BookExists(bookId))
+            if (! await _bookRepository.BookExists(bookId))
             {
                 return NotFound();
             }
@@ -113,7 +113,7 @@ namespace LibApi.Controllers
                 return BadRequest(ModelState);
             }
             var bookMap = _mapper.Map<Book>(updatedBook);
-            if (!_bookRepository.UpdateBook(bookMap))
+            if (! await _bookRepository.UpdateBook(bookMap))
             {
                 ModelState.AddModelError("", "Something went wrong while updating book");
                 return StatusCode(500, ModelState);

@@ -20,9 +20,9 @@ namespace LibApi.Controllers
         }
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(IEnumerable<Author>))]
-        public IActionResult GetAuthors()
+        public async Task <IActionResult> GetAuthors()
         {
-            var authors = _mapper.Map<List<AuthorDto>>(_authorRepository.GetAuthors());
+            var authors = _mapper.Map<List<AuthorDto>>( await _authorRepository.GetAuthors());
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -32,9 +32,9 @@ namespace LibApi.Controllers
         [HttpGet("{authorId}")]
         [ProducesResponseType(200, Type = typeof(Author))]
         [ProducesResponseType(400)]
-        public IActionResult GetAuthor(int authorId)
+        public async Task <IActionResult> GetAuthor(int authorId)
         {
-            if (!_authorRepository.AuthorExists(authorId))
+            if (! await _authorRepository.AuthorExists(authorId))
                 return NotFound();
             var author = _mapper.Map<AuthorDto>(_authorRepository.GetAuthorById(authorId));
             if (!ModelState.IsValid)
@@ -44,10 +44,10 @@ namespace LibApi.Controllers
         [HttpGet("book/{authorId}")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<Book>))]
         [ProducesResponseType(400)]
-        public IActionResult GetBookByAuthorId(int authorId)
+        public async Task<IActionResult> GetBookByAuthorId(int authorId)
         {
             var books = _mapper.Map<List<BookDto>>
-                (_authorRepository.GetBooksByAuthorId(authorId));
+                ( await _authorRepository.GetBooksByAuthorId(authorId));
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             return Ok(books);
@@ -55,14 +55,14 @@ namespace LibApi.Controllers
         [HttpPost]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public IActionResult CreateAuthor([FromBody] AuthorDto authorCreate)
+        public async Task <IActionResult> CreateAuthor([FromBody] AuthorDto authorCreate)
         {
             if (authorCreate== null)
             {
                 return BadRequest(ModelState);
             }
-            var author = _authorRepository.GetAuthors()
-                .Where(a => a.FirstName.Trim().ToUpper() == authorCreate.FirstName.ToUpper()
+            var authors = await _authorRepository.GetAuthors();
+            var author=authors.Where(a => a.FirstName.Trim().ToUpper() == authorCreate.FirstName.ToUpper()
                 && a.LastName.Trim().ToUpper() == authorCreate.LastName.ToUpper())
                 .FirstOrDefault();
             if (author!=null)
@@ -73,7 +73,7 @@ namespace LibApi.Controllers
             if (!ModelState.IsValid)
                 BadRequest(ModelState); 
             var authorMap=_mapper.Map<Author>(authorCreate);
-            if (!_authorRepository.CreateAuthor(authorMap))
+            if (! await _authorRepository.CreateAuthor(authorMap))
             {
                 ModelState.AddModelError("","Something went wrong while saving");
                 return StatusCode(500, ModelState);
@@ -84,18 +84,18 @@ namespace LibApi.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
-        public IActionResult DeleteAuthor(int authorId)
+        public async Task<IActionResult> DeleteAuthor(int authorId)
         {
-            if (!_authorRepository.AuthorExists(authorId))
+            if (! await _authorRepository.AuthorExists(authorId))
             {
                 return NotFound();
             }
-            var authorToDelete = _authorRepository.GetAuthorById(authorId);
+            var authorToDelete = await _authorRepository.GetAuthorById(authorId);
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            if (!_authorRepository.DeleteAuthor(authorToDelete))
+            if (! await _authorRepository.DeleteAuthor(authorToDelete))
             {
                 ModelState.AddModelError("", "Something went wrong while deleting the author");
             }
@@ -105,7 +105,7 @@ namespace LibApi.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
-        public IActionResult UpdateAuthor(int authorId, [FromBody] AuthorDto updatedAuthor)
+        public async Task <IActionResult> UpdateAuthor(int authorId, [FromBody] AuthorDto updatedAuthor)
         {
             if (updatedAuthor==null)
             {
@@ -115,7 +115,7 @@ namespace LibApi.Controllers
             {
                 return BadRequest(ModelState);
             }
-            if (!_authorRepository.AuthorExists(authorId))
+            if (! await _authorRepository.AuthorExists(authorId))
             {
                 return NotFound();
             }
@@ -124,7 +124,7 @@ namespace LibApi.Controllers
                 return BadRequest(ModelState);
             }
             var authorMap=_mapper.Map<Author>(updatedAuthor);
-            if (!_authorRepository.UpdateAuthor(authorMap))
+            if (! await _authorRepository.UpdateAuthor(authorMap))
             {
                 ModelState.AddModelError("", "Something went wrong while updating author");
                 return StatusCode(500, ModelState);

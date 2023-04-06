@@ -1,6 +1,7 @@
 ﻿using LibApi.Context;
 using LibApi.Interfaces;
 using LibApi.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace LibApi.Repositories
 {
@@ -12,48 +13,43 @@ namespace LibApi.Repositories
         {
             _context = context;
         }
-        public bool BookExists(int id)
+        public async Task<bool> BookExists(int id)
         {
-            return _context.Books.Any(b=>b.Id == id);
+            return await _context.Books.AnyAsync(b=>b.Id == id);
         }
 
-        public bool CreateBook(Book book)
+        public async Task <bool> CreateBook(Book book)
         {
             _context.Add(book);
-            return Save();
+            return await Save();
         }
 
-        public bool DeleteBook(Book book)
+        public async Task <bool> DeleteBook(Book book)
         {
             _context.Remove(book);
-            return Save();
+            return await Save();
         }
 
-        public Book GetBook(int id)
+        public async Task <Book> GetBook(int id)
         {
-            return _context.Books.Where(b => b.Id == id).FirstOrDefault();
+            return await _context.Books.Where(b => b.Id == id).FirstOrDefaultAsync();
         }
 
-        public Book GetBook(string title)
+        public async Task<ICollection<Book>> GetBooks()
         {
-            return _context.Books.Where(b => b.Title == title).FirstOrDefault();
+            return await _context.Books.OrderBy(b => b.Id).ToListAsync();
         }
 
-        public ICollection<Book> GetBooks()
+        public async Task<bool> Save()
         {
-            return _context.Books.OrderBy(b => b.Id).ToList();
-        }
-
-        public bool Save()
-        {
-            var saved = _context.SaveChanges();
+            var saved = await _context.SaveChangesAsync();
             return saved > 0 ? true : false;
         }
 
-        public bool UpdateBook(Book book)
+        public async Task <bool> UpdateBook(Book book)
         {
-            _context.Update(book);
-            return Save();
+              _context.Update(book);
+            return await Save();
         }
     }
 }

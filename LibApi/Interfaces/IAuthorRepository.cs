@@ -4,14 +4,14 @@ namespace LibApi.Interfaces
 {
     public interface IAuthorRepository
     {
-        bool AuthorExists(int id);
-        ICollection<Author> GetAuthors();
-        Author GetAuthorById(int id);
-        Author GetAuthorByLastName(string name);
-        ICollection<Book> GetBooksByAuthorId(int authorId);
-        bool CreateAuthor(Author author);
-        bool UpdateAuthor(Author author);
-        bool DeleteAuthor(Author author);   
-        bool Save();
+        Task<bool> AuthorExists(int id);
+        Task <ICollection<Author>> GetAuthors();
+        Task<Author> GetAuthorById(int id);
+        Task<Author> GetAuthorByLastName(string name);
+        Task<ICollection<Book>> GetBooksByAuthorId(int authorId);
+        Task<bool> CreateAuthor(Author author);
+        Task<bool> UpdateAuthor(Author author);
+        Task<bool> DeleteAuthor(Author author);   
+        Task<bool> Save();
     }
 }
