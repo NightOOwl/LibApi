@@ -33,7 +33,7 @@ namespace LibApi.Controllers
         [HttpGet("{bookId}")]
         [ProducesResponseType(200, Type = typeof(Book))]
         [ProducesResponseType(400)]
-        public IActionResult GetPokemon(int bookId)
+        public IActionResult GetBook(int bookId)
         {
             if (!_bookRepository.BookExists(bookId))
                 return NotFound();
